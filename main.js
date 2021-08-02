@@ -15,9 +15,9 @@ const goods = [
     {title: 'Внешний диск', price: 15000, img: 'img/big/4-2.png', desc: 'Описание товара "Диск hdd"'},
 ];
 
-const renderGoodsItem = (title, img='NoImage', desc='Нет описания', price) => {
-    return `<div class="card" style="width: 18rem;">
-        <img class="card-img-top" alt='нет изображения' src="${img}">
+const renderGoodsItem = (title, img='img/default.jpg', desc='Нет описания', price) => {
+    return `<div class="card">
+        <img class="card-img-top"  src="${img}">
             <div class="card-body h-100"> 
                 <h4 class="card-title">${title}</h4>
                 <p class="card-text">${desc}</p>

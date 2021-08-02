@@ -23,6 +23,7 @@ main {
 .card{
     justify-content: space-around;
     align-items: center;
+    width: 18rem;
 }
 
 .card-body{
