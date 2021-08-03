@@ -28,7 +28,7 @@ const renderGoodsItem = (title, img='img/default.jpg', desc='Нет описан
 }
 
 const renderGoodsList = (list) => {
-    let goodsList = list.map(item => renderGoodsItem(item.title, item.img, item.desc, item.price));
+    let goodsList = list.map(el => renderGoodsItem(el.title, el.img, el.desc, el.price));
     goodsList.forEach(function (item) {
         $main.insertAdjacentHTML('beforeend', item);
     })
