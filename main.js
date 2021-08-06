@@ -5,7 +5,7 @@ const API_URL = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-sto
 const cartIdCounter = getIDCounter();
 const classIDCounter = getIDCounter();
 const cart = []
-const ggoods = []
+let ggoods = []
 
 function makeGETRequest(url, callback) {
     let xhr;
@@ -39,10 +39,6 @@ class Cart {
     }
 
     addToCart(id) {
-        console.log(ggoods)
-        // const good = ggoods.find(function (item) {
-        //     return item.id_product === id;
-        // });
         let good = ggoods.find(item => item.id_product === id);
         good['id_product'] = cartIdCounter();
         cart.push(good)
@@ -76,7 +72,7 @@ class GoodsList {
         return new Promise(resolve => {
             makeGETRequest(`${API_URL}/catalogData.json`, (goods) => {
                 this.goods = JSON.parse(goods);
-                ggoods.push(this.goods);
+                ggoods.push(...this.goods);
                 console.log(ggoods);
                 resolve();
             })
