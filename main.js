@@ -1,36 +1,57 @@
 ﻿"use strict";
 const $cart = document.querySelector('.cart');
 const $main = document.querySelector('main');
+const API_URL = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses'
+const cartIdCounter = getIDCounter();
+const classIDCounter = getIDCounter();
+const cart = []
+const ggoods = []
 
-function getIDCounter(params) {
+function makeGETRequest(url, callback) {
+    let xhr;
+
+    if (window.XMLHttpRequest) {
+        xhr = new XMLHttpRequest();
+    } else if (window.ActiveXObject) {
+        xhr = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            callback(xhr.responseText);
+        }
+    }
+
+    xhr.open('GET', url, true);
+    xhr.send();
+}
+
+function getIDCounter() {
     let lastID = 1;
     return function () {
         return lastID++
     }
 }
 
-const goodidCounter = getIDCounter();
-const cartIdCounter = getIDCounter();
-const classIDCounter = getIDCounter();
-const cart = []
-let goods = []
 
-class Card {
+class Cart {
     constructor() {
     }
 
     addToCart(id) {
-        const good = goods.find(function (good) {
-            return good.id === id;
-        });
-        good['id'] = cartIdCounter();
+        console.log(ggoods)
+        // const good = ggoods.find(function (item) {
+        //     return item.id_product === id;
+        // });
+        let good = ggoods.find(item => item.id_product === id);
+        good['id_product'] = cartIdCounter();
         cart.push(good)
     }
 
     drawCart() {
         $cart.textContent = '';
         if (cart.length > 0) {
-            $cart.insertAdjacentHTML('beforeend', `<p>В корзине ${cart.length} товаров на ${Card.prototype.getCartPrice()} рублей`);
+            $cart.insertAdjacentHTML('beforeend', `<p>В корзине ${cart.length} товаров на ${Cart.prototype.getCartPrice()} рублей`);
         } else {
             $cart.insertAdjacentHTML('beforeend', 'Корзина пуста');
         }
@@ -44,43 +65,31 @@ class Card {
 }
 
 
-class Good {
-    constructor(title, price, img, desc) {
-        this.id = goodidCounter();
-        this.title = title;
-        this.price = price;
-        this.img = img;
-        this.desc = desc;
-    }
-}
-
 class GoodsList {
     constructor(num = classIDCounter()) {
         this.num = num;
+        this.goods = [];
+
     }
 
     fetchGoods() {
-        goods = [
-            new Good('Телевизор', 1000, 'img/big/0-1.png', 'Описание товара "Телевизор"'),
-            new Good('Игра Doom', 1200, 'img/big/1-2.png', 'Описание товара "Игра Doom"'),
-            new Good('Кабель', 1100, 'img/big/2-3.png', 'Описание товара "Кабель usb"'),
-            new Good('Монитор', 1800, 'img/big/3-1.png', 'Описание товара "монитор"'),
-            new Good('Внешний диск', 1500, 'img/big/4-2.png', 'Описание товара "Диск hdd"'),
-            new Good('Телевизор', 10000),
-            new Good('Игра Doom', 12000, 'img/big/1-2.png', 'Описание товара "Игра Doom"'),
-            new Good('Кабель', 11000, 'img/big/2-3.png', 'Описание товара "Кабель usb"'),
-            new Good('Монитор', 18000, 'img/big/3-1.png', 'Описание товара "монитор"'),
-            new Good('Внешний диск', 15000, 'img/big/4-2.png', 'Описание товара "Диск hdd"'),
-        ]
-    };
+        return new Promise(resolve => {
+            makeGETRequest(`${API_URL}/catalogData.json`, (goods) => {
+                this.goods = JSON.parse(goods);
+                ggoods.push(this.goods);
+                console.log(ggoods);
+                resolve();
+            })
+        })
+    }
+
 
     render() {
-        goods.map(({img, desc, price, title, id}) => new GoodsItem({
-            title,
-            img,
-            desc,
+        this.goods.map(({id_product, product_name, price, img}) => new GoodsItem({
+            id_product,
+            product_name,
             price,
-            id
+            img,
         }).render()).forEach(function (items) {
             $main.insertAdjacentHTML('beforeend', items);
         })
@@ -88,7 +97,7 @@ class GoodsList {
 
     get_total_sum() {
         let total_sum = 0;
-        goods.forEach(function (item) {
+        this.goods.forEach(function (item) {
             total_sum += item.price
         })
         console.log(total_sum);
@@ -99,11 +108,11 @@ class GoodsList {
 
 
 class GoodsItem {
-    constructor({title = 'Заголовок', img = 'img/default.jpg', desc = 'Нет описания', price = 0, id}) {
-        this.id = id;
-        this.title = title;
+    constructor({product_name = 'Заголовок', img = 'img/default.jpg', price = 0, id_product}) {
+        this.id = id_product;
+        this.title = product_name;
         this.img = img;
-        this.desc = desc;
+        this.desc = 'описания в API нет';
         this.price = price;
     }
 
@@ -121,125 +130,18 @@ class GoodsItem {
 }
 
 $main.addEventListener('click', function (e) {
-    Card.prototype.addToCart(Number(e.target.getAttribute('data-id')));
-    Card.prototype.drawCart();
+    Cart.prototype.addToCart(Number(e.target.getAttribute('data-id')));
+    Cart.prototype.drawCart();
 })
 
 
 const list = new GoodsList();
-list.fetchGoods();
-list.get_total_sum();
-list.render();
+
+list.fetchGoods()
+    .then(() => list.render())
+    .then(() => list.get_total_sum())
 
 
 
-// ***********************************************************************************************
 
-class Hamburger {
-    constructor(size, stuffing) {
-        this.size = size;
-        this.stuffing = stuffing;
-        this.topping = [];
-        this.price = 0;
-        this.callories = 0;
-        if (this.size === 'small'){
-            this.price += 50;
-            this.callories += 20;
-        }
-        else if (this.size === 'big'){
-            this.price += 100;
-            this.callories += 40;
-        }
-        else {
-            alert('допускаются два размера "big" и "small"');
-            console.log('допускаются два размера "big" и "small"');
-        }
-        if (stuffing === 'cheese') {
-            this.price += 10;
-            this.callories += 20;
-        }
-        else if (stuffing === 'salad') {
-            this.price += 20;
-            this.callories += 5;
-        }
-        else if (stuffing === 'potatoes') {
-            this.price += 15;
-            this.callories += 10;
-        }
-        else {
-            alert('допускаются следующие начинки "cheese", "salad" и "potatoes"');
-            console.log('допускаются следующие начинки "cheese", "salad" и "potatoes"');
-        }
 
-    };
-
-    addTopping(topping) {
-        if (topping === 'seasoning' ){
-            this.topping.push(topping);
-            this.price += 15;
-        }
-        else if (topping === 'mayonnaise'){
-            this.topping.push(topping);
-            this.price += 20;
-            this.callories += 5;
-        }
-        else {
-            alert('допускаются две добавки "seasoning" и "mayonnaise"');
-            console.log('допускаются две добавки "seasoning" и "mayonnaise"');
-        }
-
-    };
-
-    removeTopping(topping) {
-        let topppingIndex = this.topping.indexOf(topping);
-        if (topppingIndex >= 0){
-            if (topping === 'seasoning'){
-                this.topping.splice(topppingIndex,1);
-                this.price -= 15;
-            }
-            else if (topping === 'mayonnaise'){
-                this.topping.splice(topppingIndex,1);
-                this.price -= 20;
-                this.callories -=5;
-            }
-            else{
-                alert('допускаются две добавки "seasoning" и "mayonnaise"');
-                console.log('допускаются две добавки "seasoning" и "mayonnaise"');
-            }
-        }
-        else{
-            alert('Вы пытаетесь удалить отсутствующие добавки');
-            console.log('Вы пытаетесь удалить отсутствующие добавки');
-        }
-    };
-
-    getToppings() {
-        this.topping.forEach((item, index, array) => {
-            console.log(`Добавка ${item}`)
-            return item
-        })
-
-    };
-
-    getSize() {
-        console.log(`Размер бургера: ${this.size}`)
-        return this.size
-    };
-
-    getStuffing() {
-        console.log(`Начинка бургера: ${this.stuffing}`)
-        return this.stuffing
-    };
-
-    calculatePrice() {
-        console.log(`Цена бургера: ${this.price}руб.`)
-        return this.price
-    };
-
-    calculateCalories() {
-        console.log(`Каллорийность бургера: ${this.callories}калл`)
-        return this.callories
-    };
-}
-
-// ***********************************************************************************************
