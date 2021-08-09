@@ -100,26 +100,16 @@ class GoodsList {
     }
 
 
-  //
-  //   httpGet("/article/promise/user.json")
-  // .then(
-  //   response => alert(`Fulfilled: ${response}`),
-  //   error => alert(`Rejected: ${error}`)
-  // );
-
     fetchGoods() {
         makeGETRequest(`${API_URL}/catalogData.json`)
             .then(
                 result => {
                     this.goods = JSON.parse(result)
                     _goods.push(...this.goods)
-                    GoodsList.prototype.render()
+                    this.render()
+                    this.get_total_sum()
                 })
-            .then(
-
-            )
-        }
-
+    }
 
 
     render() {
@@ -189,9 +179,7 @@ $cartDetails.addEventListener('click', function (e) {
 const list = new GoodsList();
 list.fetchGoods()
 
-list.get_total_sum()
-    // .then(() => list.render())
-    // .then(() => list.get_total_sum())
+
 
 
 
