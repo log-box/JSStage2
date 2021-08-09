@@ -1,30 +1,39 @@
 ﻿"use strict";
 const $cart = document.querySelector('.cart');
-const $main = document.querySelector('main');
+const $cartButton = document.querySelector('.cart-button');
+// const $main = document.querySelector('main');
+const $main = document.querySelector('.goods-list');
+const $popup = document.querySelector('#popup');
+const $closePopupBtn = document.querySelector('#closePopupBtn');
+const $cartDetails = document.querySelector('#cart-details');
 const API_URL = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses'
 const cartIdCounter = getIDCounter();
 const classIDCounter = getIDCounter();
 const cart = []
-let ggoods = []
+const _goods = []
 
-function makeGETRequest(url, callback) {
-    let xhr;
 
-    if (window.XMLHttpRequest) {
-        xhr = new XMLHttpRequest();
-    } else if (window.ActiveXObject) {
-        xhr = new ActiveXObject("Microsoft.XMLHTTP");
-    }
-
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-            callback(xhr.responseText);
+function makeGETRequest(url) {
+    return new Promise(function (resolve, reject) {
+        let xhr;
+        if (window.XMLHttpRequest) {
+            xhr = new XMLHttpRequest();
+        } else if (window.ActiveXObject) {
+            xhr = new ActiveXObject("Microsoft.XMLHTTP");
         }
-    }
-
-    xhr.open('GET', url, true);
-    xhr.send();
+        xhr.open('GET', url, true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                resolve(xhr.responseText);
+            }
+        }
+        xhr.onerror = function () {
+            reject(new Error("Network Error"));
+        };
+        xhr.send();
+    });
 }
+
 
 function getIDCounter() {
     let lastID = 1;
@@ -39,9 +48,17 @@ class Cart {
     }
 
     addToCart(id) {
-        let good = ggoods.find(item => item.id_product === id);
+        let good = _goods.find(item => item.id_product === id);
+        good = JSON.parse(JSON.stringify(good));
         good['id_product'] = cartIdCounter();
         cart.push(good)
+    }
+
+    removeFromCart(id) {
+        const goodIndex = cart.findIndex(function (good) {
+            return good.id === id;
+        });
+        cart.splice(goodIndex, 1);
     }
 
     drawCart() {
@@ -51,7 +68,21 @@ class Cart {
         } else {
             $cart.insertAdjacentHTML('beforeend', 'Корзина пуста');
         }
+        $cartDetails.textContent = '';
+        cart.forEach(function (good) {
+            Cart.prototype.drawCartItem(good);
+        })
     };
+
+    drawCartItem({product_name, price, id_product}) {
+        const html = `<div class="cartItem">
+        <h2>${product_name}</h2>
+        <p class="price">${price}р</p>
+        <button data-id="${id_product}">Удалить</button>
+    </div>`;
+
+        $cartDetails.insertAdjacentHTML('beforeend', html);
+    }
 
     getCartPrice() {
         return cart.reduce(function (accumulator, good) {
@@ -68,16 +99,27 @@ class GoodsList {
 
     }
 
+
+  //
+  //   httpGet("/article/promise/user.json")
+  // .then(
+  //   response => alert(`Fulfilled: ${response}`),
+  //   error => alert(`Rejected: ${error}`)
+  // );
+
     fetchGoods() {
-        return new Promise(resolve => {
-            makeGETRequest(`${API_URL}/catalogData.json`, (goods) => {
-                this.goods = JSON.parse(goods);
-                ggoods.push(...this.goods);
-                console.log(ggoods);
-                resolve();
-            })
-        })
-    }
+        makeGETRequest(`${API_URL}/catalogData.json`)
+            .then(
+                result => {
+                    this.goods = JSON.parse(result)
+                    _goods.push(...this.goods)
+                    GoodsList.prototype.render()
+                })
+            .then(
+
+            )
+        }
+
 
 
     render() {
@@ -96,7 +138,6 @@ class GoodsList {
         this.goods.forEach(function (item) {
             total_sum += item.price
         })
-        console.log(total_sum);
         $main.insertAdjacentHTML('afterend', `Сумма всех товаров: ${total_sum} руб.`);
         return total_sum;
     }
@@ -130,12 +171,27 @@ $main.addEventListener('click', function (e) {
     Cart.prototype.drawCart();
 })
 
+function showPopup() {
+    $popup.style.display = 'flex'
+}
+
+function hidePopup() {
+    $popup.style.display = 'none'
+}
+
+$cartButton.addEventListener('click', showPopup);
+$closePopupBtn.addEventListener('click', hidePopup);
+$cartDetails.addEventListener('click', function (e) {
+    Cart.prototype.removeFromCart(Number(e.target.getAttribute('data-id')));
+    Cart.prototype.drawCart();
+})
 
 const list = new GoodsList();
-
 list.fetchGoods()
-    .then(() => list.render())
-    .then(() => list.get_total_sum())
+
+list.get_total_sum()
+    // .then(() => list.render())
+    // .then(() => list.get_total_sum())
 
 
 
