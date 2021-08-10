@@ -5,7 +5,7 @@
 
 header{
     display: flex;
-    justify-content: space-between;
+    /*justify-content: space-between;*/
     width: 100%;
     background-color:lightsteelblue;
     height: 50px;
@@ -64,4 +64,23 @@ header{
 #cart-details{
     display: flex;
     flex-wrap: wrap;
+}
+.cart{
+    margin-left: 15px;
+    justify-content: center;
+    text-align: center;
+}
+.search-button{
+    margin-left: 10px;
+}
+
+.goods-search{
+    margin-left: 10px;
+}
+
+.row {
+    height: 500px;
+    width: 800px;
+    padding-left: 50px;
+    padding-top: 50px;
 }

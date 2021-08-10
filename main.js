@@ -1,11 +1,19 @@
 ﻿"use strict";
 const $cart = document.querySelector('.cart');
 const $cartButton = document.querySelector('.cart-button');
-// const $main = document.querySelector('main');
-const $main = document.querySelector('.goods-list');
+const $searchButton = document.querySelector('.search-button');
+const $searchInput = document.querySelector('.goods-search');
+const $goodsList = document.querySelector('.goods-list');
 const $popup = document.querySelector('#popup');
 const $closePopupBtn = document.querySelector('#closePopupBtn');
 const $cartDetails = document.querySelector('#cart-details');
+const $inputName = document.querySelector('#inputName');
+const $inputPhone = document.querySelector('#inputPhone');
+const $inputEmail = document.querySelector('#inputEmail');
+const $inputText = document.querySelector('#inputText');
+const $submitButton = document.querySelector('.submit-button');
+
+
 const API_URL = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses'
 const cartIdCounter = getIDCounter();
 const classIDCounter = getIDCounter();
@@ -49,16 +57,22 @@ class Cart {
 
     addToCart(id) {
         let good = _goods.find(item => item.id_product === id);
-        good = JSON.parse(JSON.stringify(good));
-        good['id_product'] = cartIdCounter();
-        cart.push(good)
+        if (good != undefined) {
+            good = JSON.parse(JSON.stringify(good));
+            good['id_product'] = cartIdCounter();
+            cart.push(good)
+        }
+
     }
 
     removeFromCart(id) {
         const goodIndex = cart.findIndex(function (good) {
-            return good.id === id;
+            return good.id_product === id;
         });
-        cart.splice(goodIndex, 1);
+        if (goodIndex != -1) {
+            cart.splice(goodIndex, 1);
+        }
+
     }
 
     drawCart() {
@@ -96,7 +110,16 @@ class GoodsList {
     constructor(num = classIDCounter()) {
         this.num = num;
         this.goods = [];
+        this.filteredGoods = [];
 
+    }
+
+    filterGoods(value) {
+        console.log(value);
+        const regexp = new RegExp(value, 'i');
+        this.filteredGoods = this.goods.filter(good => regexp.test(good.product_name));
+        $goodsList.textContent = '';
+        this.render();
     }
 
 
@@ -105,6 +128,7 @@ class GoodsList {
             .then(
                 result => {
                     this.goods = JSON.parse(result)
+                    this.filteredGoods = JSON.parse(result);
                     _goods.push(...this.goods)
                     this.render()
                     this.get_total_sum()
@@ -113,13 +137,14 @@ class GoodsList {
 
 
     render() {
-        this.goods.map(({id_product, product_name, price, img}) => new GoodsItem({
+
+        this.filteredGoods.map(({id_product, product_name, price, img}) => new GoodsItem({
             id_product,
             product_name,
             price,
             img,
         }).render()).forEach(function (items) {
-            $main.insertAdjacentHTML('beforeend', items);
+            $goodsList.insertAdjacentHTML('beforeend', items);
         })
     };
 
@@ -128,7 +153,7 @@ class GoodsList {
         this.goods.forEach(function (item) {
             total_sum += item.price
         })
-        $main.insertAdjacentHTML('afterend', `Сумма всех товаров: ${total_sum} руб.`);
+        $goodsList.insertAdjacentHTML('afterend', `Сумма всех товаров: ${total_sum} руб.`);
         return total_sum;
     }
 }
@@ -156,10 +181,50 @@ class GoodsItem {
     };
 }
 
-$main.addEventListener('click', function (e) {
+$goodsList.addEventListener('click', function (e) {
     Cart.prototype.addToCart(Number(e.target.getAttribute('data-id')));
     Cart.prototype.drawCart();
 })
+$searchButton.addEventListener('click', (e) => {
+    const value = $searchInput.value;
+    list.filterGoods(value);
+});
+$cartButton.addEventListener('click', showPopup);
+$closePopupBtn.addEventListener('click', hidePopup);
+$cartDetails.addEventListener('click', function (e) {
+    Cart.prototype.removeFromCart(Number(e.target.getAttribute('data-id')));
+    Cart.prototype.drawCart();
+})
+
+$submitButton.addEventListener('click', function (e) {
+
+    const regEmail = /^([a-z.-]+)@([a-z])+\.([a-z]{2,6})$/gi;
+    const regName = /^([a-zа-я]+)$/gi;
+    const regPhone = /^(\+\d{1,4})\((\d{3})\)(\d{3})-(\d{4})$/gi;
+
+    if (regEmail.test($inputEmail.value) === false ){
+        $inputEmail.style.border = 'solid red';
+        alert('В веденом email ошибка')
+    }
+    else {
+        $inputEmail.style.border = ''
+    }
+    if (regName.test($inputName.value) === false ){
+        $inputName.style.border = 'solid red';
+        alert('В веденом имени ошибка')
+    }
+    else {
+        $inputName.style.border = ''
+    }
+    if (regPhone.test($inputPhone.value) === false ){
+        $inputPhone.style.border = 'solid red';
+        alert('В веденом телефоне ошибка')
+    }
+    else {
+        $inputPhone.style.border = ''
+    }
+})
+
 
 function showPopup() {
     $popup.style.display = 'flex'
@@ -169,19 +234,19 @@ function hidePopup() {
     $popup.style.display = 'none'
 }
 
-$cartButton.addEventListener('click', showPopup);
-$closePopupBtn.addEventListener('click', hidePopup);
-$cartDetails.addEventListener('click', function (e) {
-    Cart.prototype.removeFromCart(Number(e.target.getAttribute('data-id')));
-    Cart.prototype.drawCart();
-})
-
 const list = new GoodsList();
 list.fetchGoods()
 
 
+// Урок 4 Задание 1-2
+// Дан большой текст, в котором для оформления прямой речи используются одинарные кавычки. Придумать шаблон, который
+// заменяет одинарные кавычки на двойные.
+// Улучшить шаблон так, чтобы в конструкциях типа aren't одинарная кавычка не заменялась на двойную.
 
+let text = "L'orem 'ipsum' 'dolo sit' amet! consectetur a'dipisicing elit?. Delectus eum 'facere facilis, fugit libero!'"
 
-
-
-
+console.log(text)
+const regexp = /(^|\s)'([\w\s!?,.]+?)'/gi;
+console.log(text.replace(regexp, '$1"$2"'));
+//все равно есть варианты, которые данная регулярка пропустит :(
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
