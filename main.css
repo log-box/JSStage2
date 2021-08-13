@@ -14,11 +14,11 @@ header{
     box-sizing: border-box;
 }
 
-.goods-list {
-    display: flex;
-    flex-wrap: wrap;
-    padding: 20px;
-}
+/*.goods-list {*/
+/*    display: flex;*/
+/*    flex-wrap: wrap;*/
+/*    padding: 20px;*/
+/*}*/
 
 .card{
     justify-content: space-around;
