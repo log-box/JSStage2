@@ -43,7 +43,7 @@ header{
     position: fixed;
     top: 100px;
     left: calc(50% - 350px);
-    display: none;
+    display: flex;
     padding: 15px;
 }
 

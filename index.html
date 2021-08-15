@@ -11,7 +11,7 @@
 <body>
 <div id="app">
     <header>
-        <button type="button" class="cart-button btn btn-primary" data-bs-toggle="button" autocomplete="off">Корзина
+        <button type="button" class="cart-button btn btn-primary" data-bs-toggle="button" autocomplete="off" @click="showPopup">Корзина
         </button>
         <input type="text" class="goods-search" v-model="searchLine "/>
         <button class="search-button btn btn-primary" type="button" @click="filterGoods">Искать</button>
@@ -22,10 +22,13 @@
             <div class="goods-item card" v-for="good in filteredGoods">
                 <h3>{{ good.product_name }}</h3>
                 <p>{{ good.price }}</p>
+                <button type="button" class="cart-button " data-bs-toggle="button" autocomplete="off" @click="addToCart(good)">В корзину
+        </button>
+
             </div>
         </div>
-        <div id="popup">
-            <button id="closePopupBtn">&#x2715;</button>
+        <div id="popup" v-if="is_visible_cart">
+            <button id="closePopupBtn" @click="hidePopup">&#x2715;</button>
             <h2>Корзина</h2>
             <div id="cart-details"></div>
         </div>

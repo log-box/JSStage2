@@ -281,6 +281,7 @@ const app = new Vue({
         goods: [],
         filteredGoods: [],
         searchLine: '',
+        is_visible_cart: false,
     },
     methods: {
         makeGETRequest(url) {
@@ -307,6 +308,15 @@ const app = new Vue({
             const regexp = new RegExp(this.searchLine, 'i');
             this.filteredGoods = this.goods.filter(good => regexp.test(good.product_name));
         },
+        showPopup() {
+            this.is_visible_cart = true;
+        },
+        hidePopup() {
+            this.is_visible_cart = false;
+        },
+        addToCart(good) {
+            //TODO
+        }
 
     },
     mounted() {
