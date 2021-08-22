@@ -70,6 +70,10 @@ header{
     justify-content: center;
     text-align: center;
 }
+#cart-item{
+    border: solid black;
+    margin: 5px;
+}
 .search-button{
     margin-left: 10px;
 }
