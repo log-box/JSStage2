@@ -1,7 +1,7 @@
 ﻿"use strict";
 const API_URL = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses'
 
-Vue.component('goods-list', {
+Vue.component('goodslist', {
     // props: ['goods'],
     template: `
     <div class="goods-list">
@@ -56,19 +56,11 @@ Vue.component('goods-item', {
     <div class="goods-item" >
       <h3>{{ good.product_name }}</h3>
       <p>{{ good.price }}</p>
-      <button type="button" class="cart-button" data-bs-toggle="button"  @click="addToCart(good) ">
+      <button type="button" class="cart-button" data-bs-toggle="button"  @click="$root.$refs.cart.addToCart(good)">
         В корзину
       </button>
     </div>
   `,
-    methods: {
-        addToCart(good) {
-            if (good) {
-                good = JSON.parse(JSON.stringify(good));
-                this.$emit('addGoodCart', good);
-            }
-        }
-    },
 });
 
 Vue.component('cart', {
@@ -81,7 +73,7 @@ Vue.component('cart', {
 
     }),
     template: `
-        <div @addGoodCart="pushGood">
+        <div >
             <button type="button" class="cart-button btn btn-primary" data-bs-toggle="button" autocomplete="off"
                     @click="showPopup">Корзина
             </button>
@@ -93,7 +85,9 @@ Vue.component('cart', {
                         <h3>Наименование: {{ good.product_name }}</h3>
                         <p>Цена: {{ good.price }}</p>
                         <p>Количество: {{ good.quantity }}</p>
+                        <button class="del-btn" @click="remove(good)">Удалить</button>
                     </div>
+                        
                 <div v-if="cartEmpty"> Корзина пуста </div>
                 
                 </div>
@@ -107,7 +101,8 @@ Vue.component('cart', {
         hidePopup() {
             this.is_visible_cart = false;
         },
-        pushGood(good) {
+        addToCart(good) {
+            good = JSON.parse(JSON.stringify(good));
             let product = this.cart.find(item => item.id_product === good.id_product);
             if (product) {
                 if (product.quantity) {
@@ -117,6 +112,23 @@ Vue.component('cart', {
                 good.quantity = 1;
                 this.cart.push(good);
                 this.cartEmpty = false;
+            }
+        },
+        remove(good) {
+            good = JSON.parse(JSON.stringify(good));
+            let product = this.cart.find(item => item.id_product === good.id_product);
+            if (product) {
+                console.log(product.quantity)
+                if (product.quantity > 1) {
+                    product.quantity--
+                } else {
+                    let itemIndex = this.cart.indexOf(product)
+                    this.cart.splice(itemIndex, 1);
+                    if (this.cart.length === 0){
+                        this.cartEmpty = true;
+                    }
+
+                }
             }
         },
 
@@ -131,14 +143,9 @@ Vue.component('search', {
     template: `
         <div >               
                 <input type="text" class="goods-search" v-model="searchLine "/>
-                <button class="search-button btn btn-primary" type="button" @click="searchGood(searchLine)" >Искать</button>
+                <button class="search-button btn btn-primary" type="button" @click="$root.$refs.goodslist.filterGoods(searchLine)" >Искать</button>
         </div>
     `,
-    methods: {
-        searchGood(value) {
-            this.$emit('filterGoods', value)
-        },
-    }
 })
 const app = new Vue({
     el: '#app',
