@@ -1,0 +1,30 @@
+{
+  "name": "logbox",
+  "version": "1.0.0",
+  "description": "shop+cart",
+  "main": "module.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "jasmine": "^3.9.0",
+    "moment": "^2.29.1",
+    "node-static": "^0.7.11",
+    "webpack": "^5.51.1",
+    "webpack-cli": "^4.8.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/log-box/JSStage2.git"
+  },
+  "author": "logvin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/log-box/JSStage2/issues"
+  },
+  "homepage": "https://github.com/log-box/JSStage2#readme"
+}
