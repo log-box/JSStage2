@@ -1,25 +1,32 @@
-﻿<!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="ru">
 <head>
-    <title>JS-Stage-2-Lesson5</title>
-    <link rel="stylesheet" href="main.css">
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <script src="js/bootstrap.js"></script>
-
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 7 logboxShop</title>
+    <link rel="stylesheet" href="../dist/css/stylevue.css">
+    <script defer src="vue.min.js"></script>
+    <script defer src="script.js"></script>
 </head>
 <body>
-<div id="app">
+    <div id="app">
+        <header>
+            <div class="container">
+                <search></search>
+                <button class="cart-button" v-bind:class="{activebutton: isVisibleCart}" v-on:click="viewCart">Корзина<span>{{totalPriceCoin}}</span></button>
+            </div>
+        </header>
+        <main class="container">
+            <goods-list :goods="filteredGoods">
+                <template v-slot:title><h2>Товары </h2></template>
+                <template v-slot:nothing v-if="filteredGoods.length == 0"><h3 class="goods-null">Товары не найдены</h3></template>
+            </goods-list>
 
-    <main>
-        <search ref="search"></search>
-        <cart ref="cart"></cart>
-        <goodslist ref="goodslist"></goodslist>
-
-    </main>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
-<script src="main.js"></script>
+            <basket-list :goods="basketGoods" v-bind:class="{ active: isVisibleCart }">
+                <template v-slot:title><h2>Корзина</h2></template>
+                <template v-slot:totalCart><small class="totalCart">{{totalPriceMessage}}</small></template>
+            </basket-list>
+        </main>
+    </div>
 </body>
 </html>
-
